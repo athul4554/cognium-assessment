@@ -1,0 +1,219 @@
+{
+  "version": "1.0.0",
+  "released": "2026-10-01",
+  "description": "Capacity and tolerance scored separately; final profile is the lowest of both bands and any caps.",
+
+  "profiles": [
+    { "code": "conservative", "level": 1, "label": "Conservative" },
+    {
+      "code": "moderately_conservative",
+      "level": 2,
+      "label": "Moderately conservative"
+    },
+    { "code": "balanced", "level": 3, "label": "Balanced" },
+    { "code": "growth", "level": 4, "label": "Growth" },
+    { "code": "aggressive", "level": 5, "label": "Aggressive" }
+  ],
+
+  "bands": [
+    { "min_score": 0, "level": 1 },
+    { "min_score": 20, "level": 2 },
+    { "min_score": 40, "level": 3 },
+    { "min_score": 60, "level": 4 },
+    { "min_score": 80, "level": 5 }
+  ],
+
+  "capacity": {
+    "max_score": 100,
+    "factors": [
+      {
+        "field": "capacity.horizon",
+        "weight": 25,
+        "why": "Time to recover from a fall is the biggest driver of capacity.",
+        "options": {
+          "under_2": { "points": 0, "label": "Needs the money within 2 years" },
+          "2_5": { "points": 8, "label": "2–5 year horizon" },
+          "5_10": { "points": 18, "label": "5–10 year horizon" },
+          "10_plus": { "points": 25, "label": "10+ year horizon" }
+        }
+      },
+      {
+        "field": "capacity.big_withdrawal",
+        "weight": 15,
+        "why": "Money needed soon can't ride out a fall.",
+        "options": {
+          "true": { "points": 0, "label": "Large withdrawal within 3 years" },
+          "false": { "points": 15, "label": "No large withdrawal soon" }
+        }
+      },
+      {
+        "field": "capacity.emergency_fund",
+        "weight": 15,
+        "why": "Without a buffer, a shock forces selling at a bad time.",
+        "options": {
+          "none": { "points": 0, "label": "No emergency fund" },
+          "under_3_months": { "points": 6, "label": "Under 3 months saved" },
+          "3_6_months": { "points": 12, "label": "3–6 months saved" },
+          "6_plus_months": { "points": 15, "label": "6+ months saved" }
+        }
+      },
+      {
+        "field": "capacity.income",
+        "weight": 15,
+        "why": "Steady income lets you rebuild after a loss.",
+        "options": {
+          "none": { "points": 0, "label": "No earned income" },
+          "self_employed": { "points": 6, "label": "Self-employed" },
+          "variable": { "points": 8, "label": "Variable or commission income" },
+          "salaried": { "points": 15, "label": "Salaried" }
+        }
+      },
+      {
+        "field": "capacity.share_of_wealth",
+        "weight": 15,
+        "why": "The bigger the share at stake, the more a fall hurts overall.",
+        "options": {
+          "over_50": { "points": 0, "label": "Over 50% of your savings" },
+          "25_50": { "points": 6, "label": "25–50% of your savings" },
+          "10_25": { "points": 12, "label": "10–25% of your savings" },
+          "under_10": { "points": 15, "label": "Under 10% of your savings" }
+        }
+      },
+      {
+        "field": "derived.age",
+        "weight": 15,
+        "why": "Younger investors have more working years to recover.",
+        "ranges": [
+          { "max": 34, "points": 15, "label": "Age under 35" },
+          { "max": 49, "points": 13, "label": "Age 35–49" },
+          { "max": 59, "points": 9, "label": "Age 50–59" },
+          { "max": 69, "points": 5, "label": "Age 60–69" },
+          { "max": null, "points": 2, "label": "Age 70+" }
+        ]
+      }
+    ],
+    "not_scored": [
+      {
+        "field": "capacity.invest_amount",
+        "why": "Size alone doesn't change ability to bear risk; share of wealth captures it."
+      },
+      {
+        "field": "capacity.monthly_amount",
+        "why": "Stored and used for money figures, not for the profile."
+      }
+    ]
+  },
+
+  "tolerance": {
+    "max_score": 100,
+    "factors": [
+      {
+        "field": "tolerance.drop",
+        "weight": 20,
+        "why": "What someone says they'd do in a fall is the strongest signal.",
+        "options": {
+          "sell_all": { "points": 0, "label": "Would sell everything at −20%" },
+          "sell_some": { "points": 7, "label": "Would sell some at −20%" },
+          "hold": { "points": 14, "label": "Would hold at −20%" },
+          "buy_more": { "points": 20, "label": "Would buy more at −20%" }
+        }
+      },
+      {
+        "field": "tolerance.max_loss",
+        "weight": 20,
+        "options": {
+          "0": { "points": 0, "label": "Can't accept any loss" },
+          "5": { "points": 5, "label": "Up to 5% yearly loss" },
+          "15": { "points": 10, "label": "Up to 15% yearly loss" },
+          "30_plus": { "points": 20, "label": "30%+ yearly loss" }
+        }
+      },
+      {
+        "field": "tolerance.portfolio",
+        "weight": 20,
+        "options": {
+          "A": { "points": 3, "label": "Picked Portfolio A (20/80)" },
+          "B": { "points": 10, "label": "Picked Portfolio B (60/40)" },
+          "C": { "points": 20, "label": "Picked Portfolio C (90/10)" }
+        }
+      },
+      {
+        "field": "tolerance.goal",
+        "weight": 20,
+        "options": {
+          "capital_preservation": {
+            "points": 0,
+            "label": "Goal: keep it safe"
+          },
+          "income": { "points": 5, "label": "Goal: regular income" },
+          "balanced_growth": { "points": 10, "label": "Goal: steady growth" },
+          "aggressive_growth": { "points": 20, "label": "Goal: maximum growth" }
+        }
+      },
+      {
+        "field": "tolerance.experience",
+        "weight": 20,
+        "options": {
+          "none": { "points": 0, "label": "No investing experience" },
+          "funds_only": { "points": 4, "label": "Funds experience" },
+          "stocks_etfs": {
+            "points": 12,
+            "label": "Stocks and ETFs experience"
+          },
+          "derivatives_leverage": {
+            "points": 20,
+            "label": "Derivatives or leverage experience"
+          }
+        }
+      }
+    ]
+  },
+
+  "combine": {
+    "method": "min_level",
+    "why": "Never go above what the customer can afford or is comfortable with."
+  },
+
+  "caps": [
+    {
+      "id": "horizon_under_2",
+      "max_level": 1,
+      "when": { "field": "capacity.horizon", "eq": "under_2" }
+    },
+    {
+      "id": "big_withdrawal",
+      "max_level": 2,
+      "when": { "field": "capacity.big_withdrawal", "eq": true }
+    },
+    {
+      "id": "no_emergency_fund",
+      "max_level": 2,
+      "when": { "field": "capacity.emergency_fund", "eq": "none" }
+    },
+    {
+      "id": "no_income_high_share",
+      "max_level": 2,
+      "when": {
+        "all": [
+          { "field": "capacity.income", "eq": "none" },
+          { "field": "capacity.share_of_wealth", "eq": "over_50" }
+        ]
+      }
+    },
+    {
+      "id": "drop_sell_all",
+      "max_level": 2,
+      "when": { "field": "tolerance.drop", "eq": "sell_all" }
+    },
+    {
+      "id": "zero_loss",
+      "max_level": 1,
+      "when": { "field": "tolerance.max_loss", "eq": "0" }
+    },
+    {
+      "id": "no_experience",
+      "max_level": 3,
+      "when": { "field": "tolerance.experience", "eq": "none" }
+    }
+  ]
+}

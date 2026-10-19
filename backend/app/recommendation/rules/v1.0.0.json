@@ -1,0 +1,110 @@
+{
+  "version": "1.0.0",
+  "released": "2026-10-18",
+  "description": "Profile level picks sleeve weights; exclusions pick the funds. Exclusions only move weight sideways (same group) or down to cash, never up.",
+
+  "groups": ["equity", "fixed_income", "real_estate", "gold", "crypto", "cash"],
+
+  "sleeves": {
+    "us_equity": {
+      "group": "equity",
+      "label": "US shares",
+      "categories": ["Large Blend"],
+      "why": "Broad market only; size, style and sector tilts are bets, not core holdings."
+    },
+    "intl_developed_equity": {
+      "group": "equity",
+      "label": "International shares",
+      "categories": ["Foreign Large Blend"],
+      "fallback": "global_equity",
+      "why": "Single-country and single-region funds left out for concentration."
+    },
+    "em_equity": {
+      "group": "equity",
+      "label": "Emerging market shares",
+      "categories": ["Diversified Emerging Mkts"],
+      "fallback": "global_equity",
+      "why": "China, India and other single-country funds left out for concentration."
+    },
+    "global_equity": {
+      "group": "equity",
+      "label": "Global shares",
+      "categories": ["Global Large-Stock Blend", "Foreign Large Blend", "Foreign Large Growth"],
+      "why": "Not allocated directly; only a fallback when the regional sleeves have no fund."
+    },
+    "aggregate_bonds": {
+      "group": "fixed_income",
+      "label": "Core bonds",
+      "categories": ["Intermediate Core Bond"],
+      "fallback": "sukuk",
+      "why": "Core-plus and hedged global bond funds left out to keep the core simple."
+    },
+    "treasuries": {
+      "group": "fixed_income",
+      "label": "US government bonds",
+      "categories": ["Short Government", "Intermediate Government"],
+      "fallback": "sukuk",
+      "why": "Long government bonds fell over 20% in the snapshot window; not a safe sleeve."
+    },
+    "inflation_linked": {
+      "group": "fixed_income",
+      "label": "Inflation-linked bonds",
+      "categories": ["Short-Term Inflation-Protected Bond"],
+      "fallback": "sukuk",
+      "why": "Short-term only, so the sleeve protects against inflation without rate risk."
+    },
+    "corporate_bonds": {
+      "group": "fixed_income",
+      "label": "Corporate bonds",
+      "categories": ["Corporate Bond", "Short-Term Bond"],
+      "fallback": "sukuk",
+      "why": "Long-term corporates left out for rate risk."
+    },
+    "sukuk": {
+      "group": "fixed_income",
+      "label": "Sukuk",
+      "categories": ["Global Bond"],
+      "why": "Not allocated directly; the sharia fallback for every bond sleeve."
+    },
+    "real_estate": {
+      "group": "real_estate",
+      "label": "Property (REITs)",
+      "categories": ["Real Estate", "Global Real Estate"]
+    },
+    "gold": {
+      "group": "gold",
+      "label": "Gold",
+      "categories": ["Commodities Focused"]
+    },
+    "crypto": {
+      "group": "crypto",
+      "label": "Crypto",
+      "categories": ["Digital Assets"]
+    },
+    "cash": {
+      "group": "cash",
+      "label": "Cash",
+      "categories": ["Ultrashort Bond"]
+    }
+  },
+
+  "exclude_tickers": {
+    "BITO": "Bitcoin futures fund; the 38% 'yield' is futures roll distributions, not income.",
+    "BLOK": "Blockchain company shares, not crypto exposure (flagged crypto in the universe).",
+    "NEAR": "Short-term bond fund sitting in the cash sleeve.",
+    "FLOT": "Floating-rate corporate credit, not cash.",
+    "FLRN": "Floating-rate corporate credit, not cash."
+  },
+
+  "allocations": {
+    "1": { "us_equity": 10, "intl_developed_equity": 5, "aggregate_bonds": 20, "treasuries": 20, "inflation_linked": 10, "cash": 35 },
+    "2": { "us_equity": 22, "intl_developed_equity": 10, "em_equity": 3, "aggregate_bonds": 20, "treasuries": 10, "inflation_linked": 10, "corporate_bonds": 5, "gold": 5, "cash": 15 },
+    "3": { "us_equity": 33, "intl_developed_equity": 15, "em_equity": 7, "aggregate_bonds": 15, "treasuries": 5, "inflation_linked": 5, "corporate_bonds": 7, "gold": 5, "real_estate": 3, "cash": 5 },
+    "4": { "us_equity": 44, "intl_developed_equity": 20, "em_equity": 11, "aggregate_bonds": 8, "inflation_linked": 2, "corporate_bonds": 5, "gold": 5, "real_estate": 3, "cash": 2 },
+    "5": { "us_equity": 49, "intl_developed_equity": 24, "em_equity": 14, "aggregate_bonds": 3, "gold": 3, "real_estate": 3, "crypto": 3, "cash": 1 }
+  },
+
+  "messages": {
+    "uninvested_cash": "Cash (held uninvested)"
+  }
+}
