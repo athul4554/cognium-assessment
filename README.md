@@ -7,11 +7,7 @@ Only requirement: **Docker Desktop** (or Docker Engine + Compose).
 ```bash
 git clone https://github.com/athul4554/cognium-assessment.git
 
-then
-
 cd cognium-assessment
-
-then
 
 make up
 ```
