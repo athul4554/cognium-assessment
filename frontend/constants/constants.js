@@ -45,6 +45,17 @@ export const reasonLabels = {
   experience: { none: "No investing experience", funds_only: "Funds experience", stocks_etfs: "Stocks and ETFs experience", derivatives_leverage: "Derivatives or leverage experience" },
 };
 
+// Text for the caps that decided a profile, by cap id from backend rules v1.0.0.json
+export const capLabels = {
+  horizon_under_2: "You need the money within 2 years",
+  big_withdrawal: "You plan a large withdrawal within 3 years",
+  no_emergency_fund: "You have no emergency fund",
+  no_income_high_share: "You have no earned income and are investing over half your savings",
+  drop_sell_all: "You would sell everything after a 20% fall",
+  zero_loss: "You can't accept any loss",
+  no_experience: "You have no investing experience",
+};
+
 // Recommendation asset groups, in the order the backend returns them
 export const assetGroups = {
   equity: { name: "Stocks", color: "bg-[#1E5E4E]", note: "Growth over the long run. The part that moves the most." },

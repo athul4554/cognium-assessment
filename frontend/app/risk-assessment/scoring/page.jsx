@@ -7,7 +7,12 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AssessmentSidebar } from "@/components/assessment-sidebar";
 import { Button } from "@/components/ui/button";
-import { levels, reasonLabels, USER_ID_KEY } from "@/constants/constants";
+import {
+  capLabels,
+  levels,
+  reasonLabels,
+  USER_ID_KEY,
+} from "@/constants/constants";
 import { createRecommendation, getAssessmentResult } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -133,7 +138,12 @@ export default function Scoring() {
               </div>
             </section>
 
-            <section className={cn("grid gap-4", result.level === 5 ? "lg:grid-cols-2" : "lg:grid-cols-3")}>
+            <section
+              className={cn(
+                "grid gap-4",
+                result.level === 5 ? "lg:grid-cols-2" : "lg:grid-cols-3",
+              )}
+            >
               {result.scores.map((s, i) => (
                 <div key={s.title} className={card}>
                   <span className="text-sm font-bold text-muted-foreground">
@@ -170,17 +180,23 @@ export default function Scoring() {
                 >
                   <span className="text-sm font-bold">What decided it</span>
                   <span className="text-[22px] font-extrabold">
-                    The more cautious side
+                    {result.caps.length
+                      ? "A limit from your answers"
+                      : "The more cautious side"}
                   </span>
                   <p className="text-sm leading-relaxed">
-                    We never go above either score, and some answers set a
-                    ceiling on their own.
+                    {result.caps.length
+                      ? `We capped your profile for the safest investment according to your input. This keeps you at ${result.label}.`
+                      : "We never go above either score, and we choose most cautious profile for your investment"}
                   </p>
-                  {result.ceiling && (
-                    <p className="rounded-[10px] bg-white px-3 py-2.5 text-sm leading-relaxed">
-                      <strong>Ceiling applied:</strong> {result.ceiling}
+                  {result.caps.map((id) => (
+                    <p
+                      key={id}
+                      className="rounded-[10px] bg-white px-3 py-2.5 text-sm leading-relaxed"
+                    >
+                      <strong>Ceiling applied:</strong> {capLabels[id] ?? id}
                     </p>
-                  )}
+                  ))}
                 </div>
               )}
             </section>

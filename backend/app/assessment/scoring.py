@@ -82,9 +82,15 @@ def compute_result(assessment: RiskAssessment) -> dict[str, Any]:
         if matches(cap["when"], answers)
     ]
     level = min([capacity_level, tolerance_level] + [cap["max_level"] for cap in caps])
+    # Caps that pulled the level below both scores
+    binding_caps = [
+        cap["id"] for cap in caps
+        if cap["max_level"] == level < min(capacity_level, tolerance_level)
+    ]
 
     return {
         "level": level,
+        "caps": binding_caps,
         "capacity_score": capacity_score,
         "capacity_level": capacity_level,
         "capacity_reasons": capacity_reasons,

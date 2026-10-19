@@ -158,6 +158,20 @@ def test_lowest_cap_wins():
     assert result["level"] == 1
 
 
+def test_binding_caps_are_returned():
+    # big_withdrawal also matches but only the under 2 year horizon sets the level
+    result = compute_result(make_assessment(horizon="under_2", big_withdrawal=True))
+
+    assert result["caps"] == ["horizon_under_2"]
+
+
+def test_no_caps_when_a_score_decides():
+    # experience none caps at 3, the same as the tolerance level
+    result = compute_result(make_assessment(experience="none"))
+
+    assert result["caps"] == []
+
+
 def test_high_capacity_low_tolerance():
     # Stable income, long horizon, big buffer, but sells everything at -20%
     result = compute_result(make_assessment(drop_reaction="sell_all"))

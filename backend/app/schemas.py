@@ -100,6 +100,7 @@ class AssessmentResultOut(BaseModel):
     user_id: str
     level: int
     label: str
+    caps: list[str]
     scores: list[Score]
     record: Record
 

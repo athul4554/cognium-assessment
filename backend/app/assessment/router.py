@@ -80,6 +80,7 @@ def to_result_out(r: AssessmentResult, a: RiskAssessment) -> AssessmentResultOut
         user_id=r.user_id,
         level=r.level,
         label=profile_label(r.level),
+        caps=r.caps,
         scores=[
             {
                 "title": c.CAPACITY_TITLE,

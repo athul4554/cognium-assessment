@@ -62,6 +62,7 @@ class AssessmentResult(Base):
     )
     user_id: Mapped[str] = mapped_column(String(c.USER_ID_MAX_LENGTH), nullable=False, index=True)
     level: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+    caps: Mapped[list[str]] = mapped_column(JSONB, nullable=False, server_default="[]")
     capacity_score: Mapped[int] = mapped_column(SmallInteger, nullable=False)
     capacity_level: Mapped[int] = mapped_column(SmallInteger, nullable=False)
     capacity_reasons: Mapped[list[dict]] = mapped_column(JSONB, nullable=False)
