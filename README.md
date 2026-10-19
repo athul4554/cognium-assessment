@@ -5,7 +5,7 @@
 Only requirement: **Docker Desktop** (or Docker Engine + Compose).
 
 ```bash
-git clone <your-repo-url> && cd <repo>
+git clone https://github.com/athul4554/cognium-assessment.git && cd cognium-assessment
 make up
 ```
 
@@ -16,26 +16,26 @@ default in `docker-compose.yml`, so even a plain `docker compose up --build` wor
 On startup the backend applies database migrations (`alembic upgrade head`), so a fresh
 database gets its tables automatically.
 
-| Service  | URL (default ports)          |
-|----------|------------------------------|
-| Frontend | http://localhost:3000        |
-| API      | http://localhost:8000/api    |
-| API docs | http://localhost:8000/docs   |
-| Postgres | localhost:5432               |
+| Service  | URL (default ports)        |
+| -------- | -------------------------- |
+| Frontend | http://localhost:3000      |
+| API      | http://localhost:8000/api  |
+| API docs | http://localhost:8000/docs |
+| Postgres | localhost:5432             |
 
 Code changes hot-reload in both frontend and backend — no rebuild needed.
 Rebuild (`docker compose up --build`) only after changing `package.json` or `pyproject.toml`.
 
 ## Configuration (`.env`)
 
-| Key                 | Default                | Purpose                         |
-|---------------------|------------------------|---------------------------------|
-| `POSTGRES_USER`     | `postgres`             | Database user                   |
-| `POSTGRES_PASSWORD` | `postgres`             | Database password               |
-| `POSTGRES_DB`       | `user-risk-assessment` | Database name                   |
-| `FRONTEND_PORT`     | `3000`                 | Host port for the frontend      |
-| `BACKEND_PORT`      | `8000`                 | Host port for the API           |
-| `DB_PORT`           | `5432`                 | Host port for Postgres          |
+| Key                 | Default                | Purpose                    |
+| ------------------- | ---------------------- | -------------------------- |
+| `POSTGRES_USER`     | `postgres`             | Database user              |
+| `POSTGRES_PASSWORD` | `postgres`             | Database password          |
+| `POSTGRES_DB`       | `user-risk-assessment` | Database name              |
+| `FRONTEND_PORT`     | `3000`                 | Host port for the frontend |
+| `BACKEND_PORT`      | `8000`                 | Host port for the API      |
+| `DB_PORT`           | `5432`                 | Host port for Postgres     |
 
 Change a port if something on your machine already uses it. Ports only affect your machine;
 inside Docker the services always talk on `backend:8000` and `db:5432`.
