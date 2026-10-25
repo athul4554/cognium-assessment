@@ -4,7 +4,7 @@ import statistics
 import pandas as pd
 
 from app.recommendation import market_data
-from app.recommendation.market_data import _round, compute_metrics, get_metrics, load_snapshot
+from app.recommendation.market_data import _round, compute_metrics, get_daily_returns, get_metrics, load_snapshot
 
 
 def prices(values) -> pd.Series:
@@ -88,3 +88,33 @@ def test_one_ticker_failure_uses_snapshot(monkeypatch):
 
     assert m["IVV"]["source"] == "live"
     assert m["VTI"] == snapshot_of("VTI")
+
+
+# Daily returns for weighting the picks (yfinance is always mocked)
+
+def test_daily_returns(monkeypatch):
+    close = pd.DataFrame({"IVV": prices([100.0] * 252 + [110.0]), "AGG": prices([50.0] * 253)})
+    monkeypatch.setattr(market_data.yf, "download", lambda *a, **kw: {"Close": close})
+
+    r = get_daily_returns(["IVV", "AGG"])
+
+    assert list(r.columns) == ["IVV", "AGG"]
+    assert len(r) == 252
+    assert r["IVV"].iloc[-1] == 0.1 and r["AGG"].sum() == 0
+
+
+def test_daily_returns_download_failure_is_none(monkeypatch):
+    def fail(*a, **kw):
+        raise ConnectionError("offline")
+
+    monkeypatch.setattr(market_data.yf, "download", fail)
+
+    assert get_daily_returns(["IVV"]) is None
+
+
+def test_daily_returns_short_history_is_none(monkeypatch):
+    # One ticker with no prices leaves no common days
+    close = pd.DataFrame({"IVV": prices([100.0] * 253), "VTI": prices([float("nan")] * 253)})
+    monkeypatch.setattr(market_data.yf, "download", lambda *a, **kw: {"Close": close})
+
+    assert get_daily_returns(["IVV", "VTI"]) is None

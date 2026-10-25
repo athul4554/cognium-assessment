@@ -10,7 +10,7 @@ SCORER_PATH = APP_DIR / "assessment" / "rules" / "v1.0.0.json"
 
 # Recommendation rules, instrument universe and fallback price snapshot
 RECOMMENDATION_DIR = APP_DIR / "recommendation"
-RECOMMENDER_PATH = RECOMMENDATION_DIR / "rules" / "v1.0.0.json"
+RECOMMENDER_PATH = RECOMMENDATION_DIR / "rules" / "v1.2.0.json"
 UNIVERSE_PATH = RECOMMENDATION_DIR / "universe.json"
 SNAPSHOT_PATH = RECOMMENDATION_DIR / "snapshot.json"
 
@@ -18,6 +18,9 @@ SNAPSHOT_PATH = RECOMMENDATION_DIR / "snapshot.json"
 MARKET_DATA_PERIOD = "3y"
 MARKET_DATA_TIMEOUT_SECONDS = 10
 TRADING_DAYS_PER_YEAR = 252
+DISCLAIMER = "Based on past performance; not a guarantee of future returns."
+
+UNINVESTED_CASH = "Cash (held uninvested)"
 
 # Answer option codes, must match the scorer config option keys
 # Literal types for the schemas, tuples of the same values for the DB enums

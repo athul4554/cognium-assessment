@@ -72,6 +72,7 @@ def build(assessment: RiskAssessment, result: AssessmentResult) -> Recommendatio
         invest_amount=assessment.invest_amount,
         monthly_amount=assessment.monthly_amount,
         holdings=holdings,
+        portfolio=built["portfolio"],
         rules_version=built["rules_version"],
         universe_as_of=built["universe_as_of"],
     )
@@ -87,6 +88,8 @@ def to_out(r: Recommendation, a: RiskAssessment, result: AssessmentResult) -> Re
         monthly_amount=r.monthly_amount,
         groups=group_weights(r.holdings),
         holdings=r.holdings,
+        metrics=r.portfolio,
+        disclaimer=c.DISCLAIMER,
         record={
             "assessment": a.id,
             "assessment_result": result.id,

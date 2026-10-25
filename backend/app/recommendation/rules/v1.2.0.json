@@ -1,0 +1,57 @@
+{
+  "version": "1.2.0",
+  "released": "2026-10-24",
+  "description": "Funds are picked per bucket by 3y return minus a level drawdown penalty; bucket weights are the highest-return mix inside the level's ranges and drawdown / volatility limits.",
+
+  "groups": ["equity", "fixed_income", "real_estate", "gold", "crypto", "cash"],
+
+  "min_age_years": 3,
+  "regions": ["us", "developed_ex_us", "europe", "asia_pacific", "emerging", "global_ex_us", "global"],
+  "weight_step": 5,
+
+  "exclude_tickers": {
+    "BITO": "Bitcoin futures fund; the 38% 'yield' is futures roll distributions, not income.",
+    "BLOK": "Blockchain company shares, not crypto exposure (flagged crypto in the universe)."
+  },
+
+  "sleeve_groups": {
+    "us_equity": "equity",
+    "intl_developed_equity": "equity",
+    "em_equity": "equity",
+    "aggregate_bonds": "fixed_income",
+    "treasuries": "fixed_income",
+    "corporate_bonds": "fixed_income",
+    "inflation_linked": "fixed_income",
+    "cash": "cash",
+    "gold": "gold",
+    "real_estate": "real_estate",
+    "crypto": "crypto"
+  },
+
+  "buckets": {
+    "us_equity": { "label": "US equity", "picks": 2, "sleeves": ["us_equity"] },
+    "intl_equity": { "label": "International equity", "picks": 2, "sleeves": ["intl_developed_equity", "em_equity"] },
+    "bonds": { "label": "Bonds", "picks": 2, "sleeves": ["aggregate_bonds", "treasuries", "corporate_bonds", "inflation_linked"] },
+    "cash": { "label": "Cash", "picks": 1, "sleeves": ["cash"] },
+    "real_assets": { "label": "Gold / real assets", "picks": 2, "sleeves": ["gold", "real_estate"] },
+    "crypto": { "label": "Crypto", "picks": 1, "sleeves": ["crypto"], "crypto": true }
+  },
+
+  "drawdown_penalty": { "1": 4, "2": 2.5, "3": 1.5, "4": 0.75, "5": 0.1 },
+
+  "limits": {
+    "1": { "max_drawdown": 10, "max_volatility": 6 },
+    "2": { "max_drawdown": 15, "max_volatility": 9 },
+    "3": { "max_drawdown": 22, "max_volatility": 12 },
+    "4": { "max_drawdown": 28, "max_volatility": 15 },
+    "5": { "max_drawdown": 35, "max_volatility": 18 }
+  },
+
+  "ranges": {
+    "1": { "us_equity": [5, 20], "intl_equity": [0, 10], "bonds": [30, 70], "cash": [10, 40], "real_assets": [0, 10], "crypto": [0, 0] },
+    "2": { "us_equity": [10, 30], "intl_equity": [5, 15], "bonds": [25, 60], "cash": [5, 25], "real_assets": [0, 10], "crypto": [0, 0] },
+    "3": { "us_equity": [20, 40], "intl_equity": [5, 20], "bonds": [20, 45], "cash": [0, 15], "real_assets": [5, 15], "crypto": [0, 0] },
+    "4": { "us_equity": [30, 50], "intl_equity": [10, 25], "bonds": [10, 35], "cash": [0, 10], "real_assets": [5, 15], "crypto": [0, 0] },
+    "5": { "us_equity": [40, 60], "intl_equity": [15, 30], "bonds": [0, 20], "cash": [0, 5], "real_assets": [5, 15], "crypto": [0, 5] }
+  }
+}

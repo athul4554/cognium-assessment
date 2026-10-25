@@ -69,3 +69,21 @@ def get_metrics(tickers: list[str]) -> dict[str, dict]:
             snapshot = {k: v for k, v in load_snapshot()[ticker].items() if k != "ticker"}
             metrics[ticker] = snapshot | {"source": "snapshot"}
     return metrics
+
+
+def get_daily_returns(tickers: list[str]):
+    """Daily returns of the tickers from yfinance, None if any ticker has a year or less of prices."""
+    try:
+        close = yf.download(
+            tickers,
+            period=c.MARKET_DATA_PERIOD,
+            auto_adjust=True,
+            progress=False,
+            timeout=c.MARKET_DATA_TIMEOUT_SECONDS,
+        )["Close"][tickers].dropna()
+    except Exception as exc:
+        logger.warning("yfinance download failed: %s", exc)
+        return None
+    if len(close) <= c.TRADING_DAYS_PER_YEAR:
+        return None
+    return close.pct_change().dropna()

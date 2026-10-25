@@ -90,6 +90,7 @@ class Recommendation(Base):
     invest_amount: Mapped[Decimal] = mapped_column(Numeric(c.AMOUNT_MAX_DIGITS, c.AMOUNT_DECIMAL_PLACES), nullable=False)
     monthly_amount: Mapped[Decimal] = mapped_column(Numeric(c.AMOUNT_MAX_DIGITS, c.AMOUNT_DECIMAL_PLACES), nullable=False)
     holdings: Mapped[list[dict]] = mapped_column(JSONB, nullable=False)
+    portfolio: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     rules_version: Mapped[str] = mapped_column(String(20), nullable=False)
     universe_as_of: Mapped[date] = mapped_column(Date, nullable=False)
     created_at: Mapped[datetime] = mapped_column(

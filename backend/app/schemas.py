@@ -125,7 +125,7 @@ class Holding(BaseModel):
     sleeve: str
     sleeve_label: str
     group: str
-    weight: int
+    weight: float
     amount: float
     monthly_amount: float
     ticker: str | None
@@ -142,9 +142,16 @@ class Holding(BaseModel):
 
 class GroupWeight(BaseModel):
     group: str
-    weight: int
+    weight: float
     amount: float
     monthly_amount: float
+
+
+class PortfolioMetrics(BaseModel):
+    expected_return_pct: float
+    volatility_pct: float
+    max_drawdown_pct: float
+    source: Literal["live", "snapshot"]
 
 
 class RecommendationRecord(BaseModel):
@@ -164,4 +171,6 @@ class RecommendationOut(BaseModel):
     monthly_amount: Amount
     groups: list[GroupWeight]
     holdings: list[Holding]
+    metrics: PortfolioMetrics | None
+    disclaimer: str
     record: RecommendationRecord
