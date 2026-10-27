@@ -8,19 +8,28 @@ APP_DIR = Path(__file__).resolve().parent
 # Scorer config used to compute results
 SCORER_PATH = APP_DIR / "assessment" / "rules" / "v1.0.0.json"
 
-# Recommendation rules, instrument universe and fallback price snapshot
+# Recommendation rules, instrument universe and saved daily prices
 RECOMMENDATION_DIR = APP_DIR / "recommendation"
-RECOMMENDER_PATH = RECOMMENDATION_DIR / "rules" / "v1.2.0.json"
+RECOMMENDER_PATH = RECOMMENDATION_DIR / "rules" / "v1.4.0.json"
 UNIVERSE_PATH = RECOMMENDATION_DIR / "universe.json"
-SNAPSHOT_PATH = RECOMMENDATION_DIR / "snapshot.json"
+PRICE_HISTORY_PATH = RECOMMENDATION_DIR / "price_history.json"
 
 # Market data (yfinance)
-MARKET_DATA_PERIOD = "3y"
+MARKET_DATA_LOOKBACK_DAYS = 1096
 MARKET_DATA_TIMEOUT_SECONDS = 10
 TRADING_DAYS_PER_YEAR = 252
 DISCLAIMER = "Based on past performance; not a guarantee of future returns."
 
 UNINVESTED_CASH = "Cash (held uninvested)"
+CASH_TICKER = "__CASH__"
+ALLOCATION_MESSAGES = {
+    "optimized": "Allocation calculated from estimated returns and how the funds move together.",
+    "zero_loss": "You selected no acceptable loss. This illustration leaves your money uninvested rather than recommending funds that can fall in value.",
+    "no_data": "Usable daily price history is unavailable. Your money remains unallocated; fund snapshot summaries cannot establish portfolio risk.",
+    "no_funds": "No eligible funds are available for your preferences. Your money remains unallocated.",
+    "optimizer_failed": "The allocation could not be calculated. Your money remains unallocated; you can try again later.",
+    "cash_only": "The model selected uninvested cash under the current return estimates and risk targets.",
+}
 
 # Answer option codes, must match the scorer config option keys
 # Literal types for the schemas, tuples of the same values for the DB enums
@@ -64,3 +73,4 @@ NO_SUBMISSION = "No risk assessment found for this user"
 NO_RESULT = "No assessment result found for this user"
 NO_RECOMMENDATION = "No recommendation found for this user"
 DB_ERROR = "Database error, please try again"
+OUTDATED_RECOMMENDATION = "This portfolio uses older allocation rules. Open your risk profile and choose See my portfolio to rebuild it."

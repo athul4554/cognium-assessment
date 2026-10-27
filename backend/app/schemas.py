@@ -118,7 +118,7 @@ class Metrics(BaseModel):
     return_3y_annualised_pct: float | None
     volatility_1y_pct: float | None
     max_drawdown_3y_pct: float | None
-    source: Literal["live", "snapshot"]
+    source: Literal["live", "saved", "snapshot"]
 
 
 class Holding(BaseModel):
@@ -147,11 +147,28 @@ class GroupWeight(BaseModel):
     monthly_amount: float
 
 
-class PortfolioMetrics(BaseModel):
-    expected_return_pct: float
-    volatility_pct: float
-    max_drawdown_pct: float
-    source: Literal["live", "snapshot"]
+class HistoricalMetrics(BaseModel):
+    volatility_pct: float | None
+    max_drawdown_pct: float | None
+    start_date: date | None
+    end_date: date | None
+    trading_days: int
+
+
+class PortfolioMetrics(HistoricalMetrics):
+    source: Literal["live", "saved", "none"]
+    currency: str
+    weighted_expense_ratio_pct: float
+    risk_limits: dict[str, float]
+    estimated_return_pct: float | None
+    estimated_volatility_pct: float | None
+    # cash_adjusted is accepted only for recommendations stored by older logic.
+    status: Literal["optimized", "cash_adjusted", "cash_only", "unallocated"]
+    reason: str
+    explanation: str
+    uninvested_cash_pct: float
+    method: Literal["mean_variance"]
+    excluded_tickers: list[str]
 
 
 class RecommendationRecord(BaseModel):

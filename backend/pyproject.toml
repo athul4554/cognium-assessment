@@ -10,6 +10,8 @@ dependencies = [
     "pydantic>=2.10",
     "alembic>=1.20.0",
     "yfinance==1.7.0",
+    "pyportfolioopt>=1.5.6,<2",
+    "packaging>=24,<27",
 ]
 
 [tool.uv]

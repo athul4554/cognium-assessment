@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { AssessmentSidebar } from "@/components/assessment-sidebar";
 import { Button } from "@/components/ui/button";
 import { assetGroups, USER_ID_KEY } from "@/constants/constants";
-import { getRecommendation } from "@/lib/api";
+import { errorMessage, getRecommendation } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 const columns = ["Weight", "Amount", "Price", "1y", "3y / yr", "Volatility", "Worst fall", "Fee"];
@@ -22,16 +22,38 @@ const money = (value, currency) =>
 const pct = (value, signed = true) => {
   if (value == null) return "—";
   const sign = !signed ? "" : value > 0 ? "+" : value < 0 ? "−" : "";
-  return `${sign}${Math.abs(value).toFixed(1)}%`;
+  return `${sign}${Math.abs(value).toFixed(2)}%`;
 };
 
 const fee = (value) => (value == null ? "—" : `${value.toFixed(2)}%`);
+const allocationPct = (value) => `${value.toFixed(2)}%`;
+
+// Round the complete allocation in basis points. The largest decimal remainders
+// receive the leftover basis points, keeping the displayed total at 100.00%.
+const roundedAllocation = (items) => {
+  const total = items.reduce((sum, item) => sum + Number(item.weight), 0);
+  if (!items.length || total <= 0) return items;
+
+  const shares = items.map((item, index) => {
+    const exact = Number(item.weight) * 10000 / total;
+    return { item, index, basisPoints: Math.floor(exact), remainder: exact - Math.floor(exact) };
+  });
+  const remaining = 10000 - shares.reduce((sum, item) => sum + item.basisPoints, 0);
+  [...shares]
+    .sort((a, b) => b.remainder - a.remainder || a.index - b.index)
+    .slice(0, remaining)
+    .forEach((item) => { item.basisPoints += 1; });
+
+  return shares
+    .sort((a, b) => a.index - b.index)
+    .map(({ item, basisPoints }) => ({ ...item, weight: basisPoints / 100 }));
+};
 
 // Table cells for one holding, in `columns` order
 const fundValues = (h, currency) => {
   const m = h.metrics;
   return [
-    `${h.weight}%`,
+    allocationPct(h.weight),
     money(h.amount, currency),
     m ? m.last_close.toFixed(2) : "—",
     pct(m?.return_1y_pct),
@@ -51,7 +73,7 @@ function GroupTitle({ group }) {
   return (
     <h3 className="flex items-center gap-2.5 text-[17px] font-extrabold">
       <Swatch color={g.color} />
-      {g.name} · {group.weight}%
+      {g.name} · {allocationPct(group.weight)}
     </h3>
   );
 }
@@ -139,16 +161,18 @@ export default function Recommendations() {
   const [userId, setUserId] = useState(null);
   useEffect(() => setUserId(localStorage.getItem(USER_ID_KEY)), []);
 
-  const { data: rec, isPending } = useQuery({
+  const { data: rec, isPending, error } = useQuery({
     queryKey: ["recommendation", userId],
     queryFn: () => getRecommendation(userId),
     enabled: !!userId,
   });
 
   // Groups with several funds read best as a table, single-fund groups as cards
-  const holdingsOf = (group) => rec.holdings.filter((h) => h.group === group.group);
-  const tables = rec?.groups.filter((g) => holdingsOf(g).length > 1) ?? [];
-  const cards = rec?.groups.filter((g) => holdingsOf(g).length === 1) ?? [];
+  const groups = roundedAllocation(rec?.groups ?? []);
+  const holdings = roundedAllocation(rec?.holdings ?? []);
+  const holdingsOf = (group) => holdings.filter((h) => h.group === group.group);
+  const tables = groups.filter((g) => holdingsOf(g).length > 1);
+  const cards = groups.filter((g) => holdingsOf(g).length === 1);
 
   const snapshotDate = rec?.holdings.find((h) => h.metrics?.source === "snapshot")?.metrics.last_close_date;
 
@@ -173,7 +197,7 @@ export default function Recommendations() {
               <Loader2 className="size-8 animate-spin text-primary" />
             ) : (
               <p className="text-base">
-                No portfolio yet. Open your risk profile and choose “See my portfolio”.
+                {error ? errorMessage(error) : "No portfolio yet. Open your risk profile and choose “See my portfolio”."}
               </p>
             )}
           </div>
@@ -192,31 +216,77 @@ export default function Recommendations() {
               </div>
               <div
                 role="img"
-                aria-label={rec.groups.map((g) => `${assetGroups[g.group].name} ${g.weight}%`).join(", ")}
+                aria-label={groups.map((g) => `${assetGroups[g.group].name} ${allocationPct(g.weight)}`).join(", ")}
                 className="flex h-9 gap-[3px] overflow-hidden rounded-[10px]"
               >
-                {rec.groups.map((g) => (
+                {groups.map((g) => (
                   <span key={g.group} className={assetGroups[g.group].color} style={{ flex: g.weight }} />
                 ))}
               </div>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-                {rec.groups.map((g) => (
+                {groups.map((g) => (
                   <div key={g.group} className="flex flex-col gap-0.5">
                     <span className="flex items-center gap-2 font-bold">
                       <Swatch color={assetGroups[g.group].color} />
                       {assetGroups[g.group].name}
                     </span>
-                    <span className="font-mono text-2xl font-medium">{g.weight}%</span>
+                    <span className="font-mono text-2xl font-medium">{allocationPct(g.weight)}</span>
                     <span className="font-mono text-[13px] text-muted-foreground">{money(g.amount, rec.currency)}</span>
                   </div>
                 ))}
               </div>
-              {rec.ceiling && (
-                <p className="rounded-[10px] bg-[#E3EEEA] px-3 py-2.5 text-sm leading-relaxed text-[#133F34]">
-                  <strong>Why this mix:</strong> {rec.ceiling}
-                </p>
-              )}
             </section>
+
+            {rec.metrics && (
+              <section className={card} aria-labelledby="portfolio-history">
+                <h2 id="portfolio-history" className="text-xl font-extrabold">Portfolio return and risk</h2>
+                <p className="text-sm text-muted-foreground">
+                  {rec.metrics.start_date
+                    ? `${rec.metrics.start_date} to ${rec.metrics.end_date} · ${rec.metrics.source === "saved" ? "Saved daily prices" : "Yahoo daily prices"}`
+                    : "Historical metrics unavailable"} · {rec.metrics.currency}
+                  {rec.currency !== rec.metrics.currency && " · Exchange-rate changes in your selected currency are not included."}
+                </p>
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[480px] text-right text-sm">
+                    <thead className="text-xs text-muted-foreground">
+                      <tr>
+                        <th className="p-2 text-left">Period</th>
+                        <th className="p-2">Return / yr</th>
+                        <th className="p-2">Volatility / yr</th>
+                        <th className="p-2">Worst fall</th>
+                      </tr>
+                    </thead>
+                    <tbody className="font-mono">
+                      <tr className="border-t">
+                        <th className="p-2 text-left font-sans font-medium">Model estimate</th>
+                        <td className="p-2">{pct(rec.metrics.estimated_return_pct)}</td>
+                        <td className="p-2">{pct(rec.metrics.estimated_volatility_pct, false)}</td>
+                        <td className="p-2">—</td>
+                      </tr>
+                      <tr className="border-t">
+                        <th className="p-2 text-left font-sans font-medium">Historical observation</th>
+                        <td className="p-2">—</td>
+                        <td className="p-2">{pct(rec.metrics.volatility_pct, false)}</td>
+                        <td className="p-2">{pct(rec.metrics.max_drawdown_pct == null ? null : -rec.metrics.max_drawdown_pct)}</td>
+                      </tr>
+                      <tr className="border-t text-muted-foreground">
+                        <th className="p-2 text-left font-sans font-medium">Your risk targets</th>
+                        <td className="p-2">—</td>
+                        <td className="p-2">{pct(rec.metrics.risk_limits.max_volatility, false)}</td>
+                        <td className="p-2">{pct(-rec.metrics.risk_limits.max_drawdown)}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  The optimizer controls estimated volatility. Historical volatility and worst fall are shown for
+                  context and do not change the allocation. Future returns and losses can differ.
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {rec.metrics.excluded_tickers.length > 0 && ` ${rec.metrics.excluded_tickers.length} funds were excluded because usable price history was unavailable.`}
+                </p>
+              </section>
+            )}
 
             {tables.map((g) => (
               <FundTable key={g.group} group={g} holdings={holdingsOf(g)} currency={rec.currency} />
@@ -230,7 +300,7 @@ export default function Recommendations() {
 
             <p className="text-[13px] leading-relaxed text-muted-foreground">
               Returns, volatility and worst fall are history from the last one to three years, not a forecast.
-              “—” means the fund is too new for that figure.
+              “—” means a figure is unavailable.
               {snapshotDate && ` Some prices are from our saved snapshot of ${snapshotDate}.`} Rules v{rec.record.rules},
               fund list as of{" "}
               {rec.record.universe_as_of}. Practice exercise, not investment advice.

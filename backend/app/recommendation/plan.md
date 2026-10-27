@@ -1,5 +1,7 @@
 #### Portfolio Recommendation - API
 
+Historical design for v1.2.0. See [ARCHITECTURE.md](ARCHITECTURE.md) for the current allocation and market-data flow.
+
 - builds on the locked result from [assessment plan](../assessment/plan.md). Scoring gives us a level, this turns it into real funds with amounts and market data
 - code lives in [router.py](router.py), [builder.py](builder.py) and [market_data.py](market_data.py)
 - rules in [rules/v1.2.0.json](rules/v1.2.0.json), funds in [universe.json](universe.json), fund metrics in [snapshot.json](snapshot.json)

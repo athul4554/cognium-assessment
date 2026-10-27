@@ -1,7 +1,7 @@
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
@@ -10,8 +10,7 @@ from ..db import get_db
 from ..assessment.scoring import profile_label
 from ..models import AssessmentResult, Recommendation, RiskAssessment
 from ..schemas import RecommendationIn, RecommendationOut
-from .builder import build_recommendation, group_weights
-from .market_data import get_metrics
+from .builder import build_recommendation, group_weights, load_rules
 
 logger = logging.getLogger(__name__)
 
@@ -57,12 +56,8 @@ def build(assessment: RiskAssessment, result: AssessmentResult) -> Recommendatio
         exclusions=assessment.exclusions,
         invest_amount=assessment.invest_amount,
         monthly_amount=assessment.monthly_amount,
+        max_loss=assessment.max_loss,
     )
-
-    holdings = built["holdings"]
-    metrics = get_metrics([h["ticker"] for h in holdings if h["ticker"]])
-    for h in holdings:
-        h["metrics"] = metrics.get(h["ticker"])
 
     return Recommendation(
         assessment_result_id=result.id,
@@ -71,7 +66,7 @@ def build(assessment: RiskAssessment, result: AssessmentResult) -> Recommendatio
         currency=assessment.currency,
         invest_amount=assessment.invest_amount,
         monthly_amount=assessment.monthly_amount,
-        holdings=holdings,
+        holdings=built["holdings"],
         portfolio=built["portfolio"],
         rules_version=built["rules_version"],
         universe_as_of=built["universe_as_of"],
@@ -105,11 +100,20 @@ def create_recommendation(payload: RecommendationIn, response: Response, db: Ses
     try:
         assessment, result = latest_result(db, payload.user_id)
         existing = recommendation_of(db, result)
-        if existing:
+        if (existing and existing.rules_version == load_rules()["version"]
+                and (existing.portfolio or {}).get("reason") not in {
+                    "no_data", "optimizer_failed", "cash_adjusted",
+                }):
             response.status_code = status.HTTP_200_OK
             return to_out(existing, assessment, result)
 
         recommendation = build(assessment, result)
+        if existing:
+            # Rebuild stale rules in the existing JSON record; no schema change.
+            for field in ("holdings", "portfolio", "rules_version", "universe_as_of"):
+                setattr(existing, field, getattr(recommendation, field))
+            existing.created_at = func.now()
+            recommendation = existing
         try:
             db.add(recommendation)
             db.commit()
@@ -117,7 +121,10 @@ def create_recommendation(payload: RecommendationIn, response: Response, db: Ses
             # Another request stored it first, return that one
             db.rollback()
             response.status_code = status.HTTP_200_OK
-            return to_out(recommendation_of(db, result), assessment, result)
+            stored = recommendation_of(db, result)
+            if stored is None or stored.rules_version != load_rules()["version"]:
+                raise HTTPException(status.HTTP_409_CONFLICT, c.OUTDATED_RECOMMENDATION)
+            return to_out(stored, assessment, result)
         db.refresh(recommendation)
     except SQLAlchemyError as exc:
         raise db_error(db, exc)
@@ -133,4 +140,6 @@ def get_recommendation(user_id: str = UserIdQuery, db: Session = Depends(get_db)
         raise db_error(db, exc)
     if recommendation is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, c.NO_RECOMMENDATION)
+    if recommendation.rules_version != load_rules()["version"]:
+        raise HTTPException(status.HTTP_409_CONFLICT, c.OUTDATED_RECOMMENDATION)
     return to_out(recommendation, assessment, result)

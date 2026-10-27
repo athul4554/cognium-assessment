@@ -1,0 +1,146 @@
+{
+  "version": "1.4.0",
+  "released": "2026-10-26",
+  "description": "Mean-variance allocation using historical return estimates and Ledoit-Wolf covariance, with historical volatility and drawdown shown for context.",
+  "groups": [
+    "equity",
+    "fixed_income",
+    "gold",
+    "cash"
+  ],
+  "min_age_years": 3,
+  "regions": [
+    "us",
+    "developed_ex_us",
+    "europe",
+    "asia_pacific",
+    "emerging",
+    "global_ex_us",
+    "global"
+  ],
+  "exclude_tickers": {
+    "BITO": "Bitcoin futures fund; the 38% 'yield' is futures roll distributions, not income.",
+    "BLOK": "Blockchain company shares, not crypto exposure (flagged crypto in the universe)."
+  },
+  "sleeve_groups": {
+    "us_equity": "equity",
+    "intl_developed_equity": "equity",
+    "em_equity": "equity",
+    "aggregate_bonds": "fixed_income",
+    "treasuries": "fixed_income",
+    "corporate_bonds": "fixed_income",
+    "inflation_linked": "fixed_income",
+    "cash": "cash",
+    "gold": "gold",
+    "real_estate": "real_estate",
+    "crypto": "crypto",
+    "sukuk": "fixed_income"
+  },
+  "buckets": {
+    "us_equity": {
+      "label": "US equity",
+      "sleeves": [
+        "us_equity"
+      ]
+    },
+    "intl_equity": {
+      "label": "International equity",
+      "sleeves": [
+        "intl_developed_equity",
+        "em_equity"
+      ]
+    },
+    "bonds": {
+      "label": "Bonds",
+      "sleeves": [
+        "aggregate_bonds",
+        "treasuries",
+        "corporate_bonds",
+        "inflation_linked",
+        "sukuk"
+      ]
+    },
+    "cash": {
+      "label": "Cash",
+      "sleeves": [
+        "cash"
+      ]
+    },
+    "gold": {
+      "label": "Gold",
+      "sleeves": [
+        "gold"
+      ]
+    }
+  },
+  "limits": {
+    "1": {
+      "max_drawdown": 10,
+      "max_volatility": 6
+    },
+    "2": {
+      "max_drawdown": 15,
+      "max_volatility": 9
+    },
+    "3": {
+      "max_drawdown": 22,
+      "max_volatility": 12
+    },
+    "4": {
+      "max_drawdown": 28,
+      "max_volatility": 15
+    },
+    "5": {
+      "max_drawdown": 35,
+      "max_volatility": 18
+    }
+  },
+  "diversification": {
+    "max_holding_pct": 30,
+    "max_cash_holding_pct": 40,
+    "max_category_pct": 35,
+    "max_cash_category_pct": 40
+  },
+  "history": {
+    "currency": "USD",
+    "min_days": 252
+  },
+  "asset_class_max_pct": {
+    "1": {
+      "equity": 30,
+      "fixed_income": 100,
+      "gold": 10,
+      "cash": 100
+    },
+    "2": {
+      "equity": 45,
+      "fixed_income": 100,
+      "gold": 10,
+      "cash": 100
+    },
+    "3": {
+      "equity": 65,
+      "fixed_income": 100,
+      "gold": 15,
+      "cash": 100
+    },
+    "4": {
+      "equity": 85,
+      "fixed_income": 100,
+      "gold": 15,
+      "cash": 100
+    },
+    "5": {
+      "equity": 95,
+      "fixed_income": 100,
+      "gold": 15,
+      "cash": 100
+    }
+  },
+  "optimizer": {
+    "solver": "CLARABEL",
+    "weight_decimals": 4,
+    "tolerance": 1e-06,
+    "min_holding_pct": 0.1
+  }
+}
