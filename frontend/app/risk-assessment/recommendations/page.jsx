@@ -240,51 +240,22 @@ export default function Recommendations() {
             {rec.metrics && (
               <section className={card} aria-labelledby="portfolio-history">
                 <h2 id="portfolio-history" className="text-xl font-extrabold">Portfolio return and risk</h2>
-                <p className="text-sm text-muted-foreground">
-                  {rec.metrics.start_date
-                    ? `${rec.metrics.start_date} to ${rec.metrics.end_date} · ${rec.metrics.source === "saved" ? "Saved daily prices" : "Yahoo daily prices"}`
-                    : "Historical metrics unavailable"} · {rec.metrics.currency}
-                  {rec.currency !== rec.metrics.currency && " · Exchange-rate changes in your selected currency are not included."}
-                </p>
-                <div className="overflow-x-auto">
-                  <table className="w-full min-w-[480px] text-right text-sm">
-                    <thead className="text-xs text-muted-foreground">
-                      <tr>
-                        <th className="p-2 text-left">Period</th>
-                        <th className="p-2">Return / yr</th>
-                        <th className="p-2">Volatility / yr</th>
-                        <th className="p-2">Worst fall</th>
-                      </tr>
-                    </thead>
-                    <tbody className="font-mono">
-                      <tr className="border-t">
-                        <th className="p-2 text-left font-sans font-medium">Model estimate</th>
-                        <td className="p-2">{pct(rec.metrics.estimated_return_pct)}</td>
-                        <td className="p-2">{pct(rec.metrics.estimated_volatility_pct, false)}</td>
-                        <td className="p-2">—</td>
-                      </tr>
-                      <tr className="border-t">
-                        <th className="p-2 text-left font-sans font-medium">Historical observation</th>
-                        <td className="p-2">—</td>
-                        <td className="p-2">{pct(rec.metrics.volatility_pct, false)}</td>
-                        <td className="p-2">{pct(rec.metrics.max_drawdown_pct == null ? null : -rec.metrics.max_drawdown_pct)}</td>
-                      </tr>
-                      <tr className="border-t text-muted-foreground">
-                        <th className="p-2 text-left font-sans font-medium">Your risk targets</th>
-                        <td className="p-2">—</td>
-                        <td className="p-2">{pct(rec.metrics.risk_limits.max_volatility, false)}</td>
-                        <td className="p-2">{pct(-rec.metrics.risk_limits.max_drawdown)}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  The optimizer controls estimated volatility. Historical volatility and worst fall are shown for
-                  context and do not change the allocation. Future returns and losses can differ.
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {rec.metrics.excluded_tickers.length > 0 && ` ${rec.metrics.excluded_tickers.length} funds were excluded because usable price history was unavailable.`}
-                </p>
+                <dl className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                  <div>
+                    <dt className="text-sm font-semibold text-muted-foreground">Return / yr</dt>
+                    <dd className="font-mono text-2xl font-medium">{pct(rec.metrics.estimated_return_pct)}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-semibold text-muted-foreground">Volatility / yr</dt>
+                    <dd className="font-mono text-2xl font-medium">{pct(rec.metrics.estimated_volatility_pct, false)}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-semibold text-muted-foreground">Worst fall</dt>
+                    <dd className="font-mono text-2xl font-medium">
+                      {pct(rec.metrics.max_drawdown_pct == null ? null : -rec.metrics.max_drawdown_pct)}
+                    </dd>
+                  </div>
+                </dl>
               </section>
             )}
 
